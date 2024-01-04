@@ -1,22 +1,34 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import app from './firebase.init';
-import { getAuth } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
+import { useState } from 'react';
 
 const auth = getAuth(app);
 function App() {
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   const handleEmailBlur = event => {
-    console.log(event.target.value);
+    setEmail(event.target.value);
   }
 
   const handlePassBlur = event => {
-    console.log(event.target.value);
+    setPassword(event.target.value);
   }
+  // handleFormSubmit
   const handleFormSubmit = (event) => {
-    console.log('Clicked');
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(result => {
+        const user = result.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     event.preventDefault();
   }
 
@@ -38,9 +50,9 @@ function App() {
 
           <Form.Group className="mb-3" controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>
-            <Form.Control onBlur={handlePassBlur} type="password" placeholder="Password" />
+            <Form.Control onBlur={handlePassBlur} type="password" placeholder="Password" autoComplete="on" />
           </Form.Group>
-           
+
           <Button variant="primary" type="submit">
             Submit
           </Button>
