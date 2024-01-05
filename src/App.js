@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import app from './firebase.init';
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
 import Form from 'react-bootstrap/Form';
 import { Button } from 'react-bootstrap';
 import { useState } from 'react';
@@ -47,22 +47,23 @@ function App() {
 
     if (registered) {
       signInWithEmailAndPassword(auth, email, password)
-      .then(result => {
-        const user = result.user;
-        console.log(user);
-      })
-      .catch(error => {
-        setError(error.message);
-        console.error(error);
-      })
+        .then(result => {
+          const user = result.user;
+          console.log('Welcome logged in Sir', <br />, user);
+        })
+        .catch(error => {
+          setError(error.message);
+          console.error(error);
+        })
     }
     else {
       createUserWithEmailAndPassword(auth, email, password)
         .then(result => {
           const user = result.user;
-          console.log(user);
           setEmail('');
           setPassword('');
+          verifyEmail();
+          console.log('Thanks for reg.', <br />, user);
         })
         .catch((error) => {
           console.error(error);
@@ -71,6 +72,18 @@ function App() {
     }
     event.preventDefault();
 
+  }
+
+  const verifyEmail = () => {
+    sendEmailVerification(auth.currentUser)
+      .then(() => { console.log('Verification code has sent to your Email.') })
+  }
+
+  const forgetPasswordReset = () => {
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        console.log('Reset Message has Sent to your mail');
+      })
   }
 
   return (
@@ -105,6 +118,8 @@ function App() {
           <Form.Group className="mb-3" controlId="formBasicCheckbox">
             <Form.Check onChange={handleRegisteredChange} type="checkbox" label="Already registered." />
           </Form.Group>
+
+          <Button onClick={forgetPasswordReset} variant="link">Forget Password?</Button> <br/>
 
           <Button variant="primary" type="submit">
             {registered ? 'Login' : 'Register'}
